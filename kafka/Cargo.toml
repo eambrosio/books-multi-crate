@@ -6,3 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde = {workspace = true}
+testcontainers = { workspace = true }
+tokio = {workspace = true}
+serde_json = {workspace = true}
+tracing = {workspace = true}
+opentelemetry = {workspace = true}
+apache-avro = {workspace = true}
+schema_registry_converter = {workspace = true}
+rdkafka = "0.33.2"
+futures = "0.3.28"                              # it provides core abstractions for working with asynchronous programming. It includes types such as Future, Stream, and AsyncRead/AsyncWrite.
