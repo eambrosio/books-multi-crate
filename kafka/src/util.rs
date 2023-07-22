@@ -1,5 +1,5 @@
 use apache_avro::Schema;
-use opentelemetry::propagation::{Extractor, Injector};
+
 use rdkafka::message::{BorrowedHeaders, Headers, OwnedHeaders};
 use schema_registry_converter::{
     async_impl::schema_registry::{post_schema, SrSettings},
@@ -8,6 +8,13 @@ use schema_registry_converter::{
     schema_registry_common::RegisteredSchema,
 };
 use std::str;
+
+use opentelemetry::trace::{Span, Tracer};
+use opentelemetry::{global, Key, KeyValue, StringValue};
+use opentelemetry::{
+    global::BoxedSpan,
+    propagation::{Extractor, Injector},
+};
 
 pub struct HeaderInjector<'a>(pub &'a mut OwnedHeaders);
 
@@ -61,4 +68,32 @@ pub async fn register_schema(
     let sr_settings = SrSettings::new(schema_registry_url);
     let supplied_schema = *get_supplied_schema(&schema);
     post_schema(&sr_settings, subject, supplied_schema).await
+}
+
+pub fn initialize_headers() -> OwnedHeaders {
+    OwnedHeaders::new().insert(rdkafka::message::Header {
+        key: "key",
+        value: Some("value"),
+    })
+}
+
+pub fn get_span<'a>(
+    payload: &Vec<u8>,
+    topic: String,
+    tracer_name: String,
+    span_name: String,
+) -> global::BoxedSpan {
+    let mut span = global::tracer(tracer_name).start(span_name);
+    span.set_attribute(KeyValue {
+        key: Key::new("topic"),
+        value: opentelemetry::Value::String(StringValue::from(topic)),
+    });
+    span.set_attribute(KeyValue {
+        key: Key::new("payload"),
+        value: opentelemetry::Value::String(StringValue::from(
+            serde_json::to_string(payload).expect("Failed to serialize payload"),
+        )),
+    });
+
+    span
 }
