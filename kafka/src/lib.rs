@@ -1,2 +1,3 @@
-pub mod util;
+pub mod consumer;
 pub mod producer;
+pub mod util;
