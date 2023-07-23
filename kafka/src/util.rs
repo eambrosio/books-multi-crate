@@ -9,12 +9,9 @@ use schema_registry_converter::{
 };
 use std::str;
 
+use opentelemetry::propagation::{Extractor, Injector};
 use opentelemetry::trace::{Span, Tracer};
 use opentelemetry::{global, Key, KeyValue, StringValue};
-use opentelemetry::{
-    global::BoxedSpan,
-    propagation::{Extractor, Injector},
-};
 
 pub struct HeaderInjector<'a>(pub &'a mut OwnedHeaders);
 
@@ -77,11 +74,11 @@ pub fn initialize_headers() -> OwnedHeaders {
     })
 }
 
-pub fn get_span<'a>(
+pub fn get_span(
     payload: &Vec<u8>,
     topic: String,
-    tracer_name: String,
-    span_name: String,
+    tracer_name: &'static str,
+    span_name: &'static str,
 ) -> global::BoxedSpan {
     let mut span = global::tracer(tracer_name).start(span_name);
     span.set_attribute(KeyValue {

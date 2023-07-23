@@ -1,8 +1,8 @@
 use crate::util::{get_span, initialize_headers, HeaderInjector};
 use apache_avro::AvroSchema;
 
-use opentelemetry::trace::{Span, TraceContextExt, Tracer};
-use opentelemetry::{global, Context, Key, KeyValue, StringValue};
+use opentelemetry::trace::TraceContextExt;
+use opentelemetry::{global, Context};
 
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use rdkafka::ClientConfig;
@@ -57,13 +57,7 @@ impl KafkaProducer {
             Err(e) => panic!("Error getting payload: {}", e),
         };
 
-        let span = get_span(
-            &payload,
-            self.topic.clone(),
-            "producer".to_owned(),
-            "produce_to_kafka".to_owned(),
-        );
-
+        let span = get_span(&payload, self.topic.clone(), "producer", "produce_to_kafka");
         let context = Context::current_with_span(span);
         let mut headers = initialize_headers();
         global::get_text_map_propagator(|propagator| {
