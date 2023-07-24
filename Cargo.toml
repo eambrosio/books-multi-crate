@@ -1,5 +1,5 @@
 [workspace]
-members=["common", "books_api", "books_analytics", "database", "kafka"]
+members=["common", "books_api", "books_analytics", "database", "kafka", "books_api/migration"]
 
 [workspace.dependencies]
  # Common dependent crates for the sub crates to share the same version.
